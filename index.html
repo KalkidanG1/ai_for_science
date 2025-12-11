@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MiCANN – Physics-Informed Hydrogel Degradation Modeling</title>
+
+  <style>
+    :root {
+      --blue: #00274C;
+      --maize: #FFCB05;
+      --bg: #f5f7fb;
+      --text: #102a43;
+    }
+
+    * {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+
+      /* soft molecular background */
+      background-color: #e9f3ff;
+      background-image: url("background.jpg"); 
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-blend-mode: soft-light;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 16px 80px;
+    }
+
+    /* HERO */
+
+    header.hero {
+      padding: 60px 20px 40px;
+      text-align: center;
+      color: #f9fafb;
+      background: radial-gradient(circle at top left, #21456f 0, #00274C 40%, #001426 100%);
+      box-shadow: 0 6px 18px rgba(15,23,42,0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    header.hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.0rem, 3vw, 2.6rem);
+    }
+
+    header.hero p.subtitle {
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .tags {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .scroll-btn {
+      margin-top: 24px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: var(--maize);
+      color: #111827;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .scroll-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    /* SECTIONS */
+
+    section {
+      margin-top: 32px;
+    }
+
+    section h2 {
+      font-size: 1.4rem;
+      color: var(--blue);
+      margin-bottom: 10px;
+      border-left: 4px solid var(--maize);
+      padding-left: 10px;
+    }
+
+    .card {
+      background: #ffffffcc;
+      border-radius: 16px;
+      padding: 22px 24px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.12);
+      border: 1px solid #e5e7eb;
+      backdrop-filter: blur(6px);
+    }
+
+    ul {
+      padding-left: 18px;
+      margin-top: 6px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    /* FIGURE GRID */
+
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .figure-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 12px 14px 14px;
+      box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+      border: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+    }
+
+    .figure-card img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .figure-title {
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 2px;
+    }
+
+    /* RESULTS FIGURES */
+
+    .result-img {
+      max-width: 720px;
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 18px auto 6px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(15,23,42,0.18);
+      border: 1px solid #d1d5db;
+      background: #fff;
+    }
+
+    .caption {
+      font-size: 0.82rem;
+      font-style: italic;
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+
+    /* TWO-COLUMN GRID */
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .link-box {
+      text-align: center;
+      margin-top: 22px;
+    }
+
+    .link-box a {
+      font-size: 0.95rem;
+      padding: 9px 18px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .link-box a:hover {
+      background: #01152a;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b7280;
+      padding: 18px 8px 28px;
+    }
+
+    /* VIDEO / GIF STYLING */
+
+    .video-box {
+      text-align: center;
+    }
+
+    .video-box img {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.25);
+      border: 1px solid #d1d5db;
+      background: #000;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* PROFILE IMAGE */
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .profile-img {
+      width: 100%;
+      max-width: 260px;
+      border-radius: 999px;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 10px 26px rgba(15,23,42,0.25);
+      border: 2px solid #e5e7eb;
+    }
+
+    .about-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+
+    .about-role {
+      font-size: 0.9rem;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero">
+    <h1>MiCANN: Physics-Informed Modeling of Hydrogel Degradation</h1>
+    <p class="subtitle">
+      <strong>Kalkidan Gebru</strong> · Aerospace Engineering · University of Michigan
+    </p>
+    <div class="tags">
+      <span class="tag">Hydrogels</span>
+      <span class="tag">Polymer Degradation</span>
+      <span class="tag">CANN / MiCANN</span>
+      <span class="tag">Physics-Informed ML</span>
+    </div>
+    <button class="scroll-btn"
+            onclick="document.getElementById('intro').scrollIntoView({behavior:'smooth'})">
+      View Project ↓
+    </button>
+  </header>
+
+  <main>
+
+    <!-- INTRO -->
+    <section id="intro">
+      <h2>Why Study Polymer Degradation?</h2>
+      <div class="card">
+        <p>
+          Plastic waste in aquatic environments gradually breaks down into microplastics
+          (<strong>Figure&nbsp;1</strong>), which enter food chains, contaminate water systems, and ultimately
+          accumulate inside the human body (<strong>Figure&nbsp;2</strong>), posing long-term health risks.
+        </p>
+        <p>
+          Yet polymers are not inherently harmful. When engineered to degrade purposefully—like hydrogels—they become
+          powerful tools in <strong>biomedical applications</strong> such as tissue engineering, drug delivery, wound
+          healing, and biosensing (<strong>Figure&nbsp;3</strong>).
+        </p>
+        <p>
+          Understanding and modeling how polymers degrade is critical for both mitigating environmental harm and
+          advancing life-saving technologies. But predicting exactly <strong>how</strong> and <strong>when</strong> polymer
+          networks break down is incredibly complex: degradation is tightly coupled with mechanics, swelling,
+          transport, and time-dependent behavior. To tackle this challenge in a systematic way, we turn to
+          <strong>continuum mechanics</strong> and physics-informed machine learning.
+        </p>
+      </div>
+
+      <div class="figure-grid" style="margin-top:22px;">
+        <!-- Figure 1: plastic degradation in water -->
+        <div class="figure-card">
+          <img src="Plastic degradation in aquatic environments.png"
+               alt="Plastic degradation by microbial enzymes in aquatic environments">
+          <div class="figure-title">Figure 1 — Plastic degradation in aquatic environments</div>
+          <div>Macroplastics fragment and are enzymatically degraded into smaller monomers, oligomers, and microplastics in water.</div>
+        </div>
+
+        <!-- Figure 2: microplastics in human body -->
+        <div class="figure-card">
+          <img src="Microplastics and human exposure.png"
+               alt="Microplastics in the human digestive system">
+          <div class="figure-title">Figure 2 — Microplastics and human exposure</div>
+          <div>Microplastics can accumulate in the gastrointestinal tract and other organs, raising concerns
+            about chronic exposure and long-term health effects.</div>
+        </div>
+
+        <!-- Figure 3: biomedical / applications image -->
+        <div class="figure-card">
+          <img src="Microplastics and human exposure (2).png"
+               alt="Biomedical applications of degradable polymers">
+          <div class="figure-title">Figure 3 — Biomedical applications of degradable polymers</div>
+          <div>Engineered degradable polymer networks enable drug delivery, tissue engineering scaffolds,
+            wound dressings, biosensors, and other medical technologies.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFFUSION–DEFORMATION–DEGRADATION GIF SECTION (REPLACES VIDEO) -->
+    <section id="diffusion">
+      <h2>Diffusion–Deformation–Degradation</h2>
+      <div class="card">
+        <div class="grid-2">
+          <!-- GIF -->
+          <div class="video-box">
+            <img src="Untitled design.gif"
+                 alt="Diffusion–deformation–degradation schematic animation">
+          </div>
+
+          <!-- Explanation -->
+          <div>
+            <h3>Inelastic Deformation (F<sub>i</sub>)</h3>
+            <p>
+              Water molecules enter the polymer network, causing it to swell. At the same time, short polymer chains
+              formed by hydrolysis detach from the network and diffuse outward. This coupled solvent uptake and
+              chain scission changes both the volume and internal microstructure of the material and represents the
+              inelastic part of the deformation.
+            </p>
+
+            <h3>Elastic Deformation (F<sub>e</sub>)</h3>
+            <p>
+              From this swollen intermediate configuration, the polymer network undergoes elastic stretching or
+              compression to reach the current configuration. The total response is therefore composed of
+              diffusion-driven inelastic changes followed by elastic loading, capturing the full
+              <strong>diffusion–deformation–degradation</strong> process characteristic of hydrogels.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHODS / ARCHITECTURE -->
+    <section id="methods">
+      <h2>Methods: MiCANN Architecture</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Motivation &amp; Background</h3>
+          <p>
+            Classical fully connected neural networks can interpolate rubber elasticity data, but their weights
+            and nodes do not map to known constitutive terms. They often fail to extrapolate beyond the training
+            range and may produce non-physical stress–stretch responses.
+          </p>
+          <p>
+            Constitutive Artificial Neural Networks (CANNs) embed physical structure, allowing learned parameters
+            to correlate with established models and yielding interpretable mechanics. For degrading hydrogels, we
+            additionally require a framework that respects irreversibility, non-negative dissipation, and stiffness
+            loss over time—motivating the development of MiCANN.
+          </p>
+
+          <h3 style="margin-top:18px;">Learning the Helmholtz Free Energy</h3>
+          <ul>
+            <li>MiCANN represents the Helmholtz free energy <em>&psi;</em> with a neural network constrained to be
+              objective and polyconvex.</li>
+            <li><em>&psi;</em> is zero at zero strain, smooth/differentiable, monotonically increasing with
+              deformation, and unbounded at large stretch.</li>
+            <li>Standard activations (step, ReLU, tanh/sigmoid) are replaced with non-negative, convex, unbounded
+              activations that guarantee thermodynamic and mechanical consistency.</li>
+          </ul>
+
+          <h3 style="margin-top:16px;">Degradation &amp; Dissipation Module</h3>
+          <ul>
+            <li>A convex, physics-informed degradation network predicts the next degradation state
+              &zeta;<sub>n+1</sub> from the current state and driving forces.</li>
+            <li>Convex, non-decreasing activations and non-negative weights enforce a non-negative dual
+              dissipation potential <em>&pi;*</em> and irreversible degradation (&dot;&zeta; ≥ 0).</li>
+            <li>This design keeps predictions smooth and stable even when experimental data are sparse.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="text-align:center;">
+          <h3>MiCANN Network Architecture</h3>
+
+          <!-- HFEP free-energy network -->
+          <img src="HFEP_network.png"
+               alt="HFEP free-energy network architecture"
+               class="result-img"
+               style="max-width:650px;">
+          <div class="caption">
+            Free-energy network (HFEP) that maps invariants and degradation variables to the total Helmholtz free
+            energy &psi;<sub>tot</sub> through convex, non-negative basis functions.
+          </div>
+
+          <!-- Convex dissipation network -->
+          <img src="Convex_dissipation.png"
+               alt="Convex dissipation dual network architecture"
+               class="result-img"
+               style="max-width:650px;">
+          <div class="caption">
+            Convex dissipation dual network that takes driving forces as input and outputs the dual potential
+            &pi;*<sub>CNN</sub>, enforcing non-negative dissipation and irreversible degradation.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results">
+      <h2>Results</h2>
+      <div class="card">
+        <h3>Classical Neural Networks vs. MiCANN (Single-Mode)</h3>
+
+        <p>
+          Classical fully connected neural networks can fit stress–stretch data extremely well within the training
+          window, regardless of depth or width. As shown in <strong>Figure&nbsp;4</strong>, even the smallest network
+          with a single hidden layer and two nodes interpolates the uniaxial tension curve almost perfectly.
+          Deeper or wider architectures further reduce the training error. However, this accuracy is strictly limited
+          to the domain <strong>1&nbsp;&le;&nbsp;&lambda;&nbsp;&le;&nbsp;8</strong> covered by the experimental data.
+        </p>
+
+        <img src="fig4.png"
+             alt="Classical NN depth/width sweep"
+             class="result-img">
+        <div class="caption">
+          Figure 4 — Classical neural networks with varying depths and widths trained on uniaxial tension data.
+          All fit the training range well but exhibit unstable, non-physical extrapolations outside it.
+        </div>
+
+        <p>
+          Classical networks struggle when data are sparse. <strong>Figure&nbsp;5</strong> shows a fully connected
+          network trained on multiple uniaxial datasets (rubber at 20°C and 50°C, gum stock, tread stock, foam,
+          and rubber). While interpolation within dense regions is accurate, the gum-stock dataset with only seven
+          samples exhibits pronounced oscillations in the stress–stretch curve. These nonphysical oscillations arise
+          from negative output-layer weights that destroy convexity and create spurious non-monotone behavior.
+        </p>
+
+        <img src="fig5.png"
+             alt="Classical NN fits for multiple materials"
+             class="result-img">
+        <div class="caption">
+          Figure 5 — Classical neural network fits for multiple materials. Node contributions (colored bands)
+          illustrate how classical networks saturate their expressive capacity and develop oscillations in sparsely
+          sampled regimes.
+        </div>
+
+        <p>
+          MiCANN, in contrast, learns a free-energy representation that generates smooth, monotone stress–stretch
+          curves across loading modes. <strong>Figure&nbsp;6</strong> shows MiCANN predictions for uniaxial tension (UT),
+          pure shear (PS), and equibiaxial tension (ET) along with individual free-energy contributions.
+        </p>
+
+        <img src="fig6.png"
+             alt="MiCANN UT/PS/ET single-mode"
+             class="result-img">
+        <div class="caption">
+          Figure 6 — MiCANN performance under UT (top), PS (middle), and ET (bottom). Circles are experimental
+          data and solid curves are predictions; colored regions are individual free-energy contributions,
+          demonstrating smooth, physically consistent behavior.
+        </div>
+
+        <h3 style="margin-top:26px;">Multi-Mode Training and Physical Interpretability</h3>
+
+        <p>
+          Classical networks can also fit multi-mode data accurately but offer no physical interpretability.
+          As shown in <strong>Figure&nbsp;7</strong>, a feed-forward network trained separately on UT, ET, and PS for
+          rubber at 20°C and 50°C reproduces the data with nearly zero training error, yet all nodes and weights in
+          the final layer remain active and lack clear mechanical meaning.
+        </p>
+
+        <img src="fig7.png"
+             alt="Classical NN multi-mode rubber"
+             class="result-img">
+        <div class="caption">
+          Figure 7 — Classical neural network predictions for rubber at 20°C and 50°C under UT, ET, and PS.
+          Excellent interpolation within the sampled stretch range, but no guarantees of stability or convexity
+          outside it.
+        </div>
+
+        <p>
+          When MiCANN is trained simultaneously on multiple loading modes, it infers a single, unified constitutive
+          model. <strong>Figure&nbsp;8</strong> provides an alternative visualization of MiCANN UT/PS/ET predictions,
+          again highlighting smooth, convex, and thermodynamically admissible responses.
+        </p>
+
+        <img src="fig_8.png"
+             alt="MiCANN UT/PS/ET alternative visualization"
+             class="result-img">
+        <div class="caption">
+          Figure 8 — Alternative visualization of MiCANN fits across UT, PS, and ET, emphasizing the smooth and
+          monotone character of the learned constitutive law.
+        </div>
+
+        <p>
+          For sufficiently rich and diverse datasets, MiCANN converges robustly independent of initialization to the
+          same set of free-energy parameters and degradation kinetics. <strong>Figure&nbsp;9</strong> shows MiCANN
+          predictions across temperatures and loading modes, demonstrating that the architecture yields a single,
+          unified model that generalizes across conditions while remaining thermodynamically consistent.
+        </p>
+
+        <img src="MiCANN_predictions.png"
+             alt="MiCANN multi-mode generalization"
+             class="result-img">
+        <div class="caption">
+          Figure 9 — MiCANN predictions for UT, ET, and PS across temperatures. The learned free-energy representation
+          and degradation kinetics generalize across loading modes.
+        </div>
+
+        <p>
+          <strong>Overall:</strong> Classical networks memorize the training regime and often fail under extrapolation
+          or sparse sampling, whereas MiCANN learns a unified, mechanistically meaningful constitutive model that
+          respects continuum mechanics and thermodynamics.
+        </p>
+
+        <div class="link-box">
+          <a href="Final_Report (1).pdf" download>Download Full Final Report (PDF)</a>
+        </div>
+        <div class="link-box" style="margin-top:10px;">
+          <a href="Presentaion 598.pptx" download>Download Presentation (PPTX)</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT THE RESEARCHER (WITH PHOTO) -->
+    <section id="about">
+      <h2>Project done by</h2>
+      <div class="card">
+        <div class="about-grid">
+          <div>
+            <p class="about-name">Kalkidan Gebru</p>
+            <p class="about-role">Ph.D. Student · Aerospace Engineering · University of Michigan</p>
+            <!-- <p>
+              Kalkidan’s research focuses on the mechanics and degradation of soft materials, with an emphasis on
+              hydrogel networks and physics-informed machine learning. She is passionate about building interpretable,
+              thermodynamically consistent models that bridge continuum mechanics, data-driven methods, and real-world
+              biomedical and environmental applications.
+            </p>
+            <p>
+              Beyond research, she is committed to mentoring and advocacy for underrepresented students in engineering,
+              working to build pathways and role models for future generations in STEM.
+            </p> -->
+          </div>
+          <div>
+            <img src="kalkidan.jpg"
+                 alt="Portrait of Kalkidan Gebru"
+                 class="profile-img">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2025 — MiCANN Hydrogel Project — University of Michigan
+  </footer>
+
+</body>
+</html>
